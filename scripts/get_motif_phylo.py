@@ -1,5 +1,5 @@
 import pandas as pd
-from glycowork.motif.annotate import annotate_glycan, annotate_dataset, quantify_motifs
+from glycowork.motif.annotate import annotate_dataset
 from glycowork.glycan_data.loader import df_glycan, df_species
 from ete3 import NCBITaxa
 ncbi = NCBITaxa()
@@ -29,7 +29,6 @@ tree.write(outfile="output/2918_species_tree.nw")
 
 
 df_gly_sp = df_species[["glycan", "Species"]]#[:100]
-
 sp_gly_dic = df_gly_sp.groupby("Species")["glycan"].agg(list).to_dict()
 
 species_dfs = []

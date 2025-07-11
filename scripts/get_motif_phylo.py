@@ -40,7 +40,11 @@ for species, glycan_list in sp_gly_dic.items():
 combined_df = pd.concat(species_dfs, ignore_index=True)
 
 result_df = combined_df.groupby("Species").sum(numeric_only=True)
-result_df.to_csv("output/motif_counts_per_species.csv", index=True, header=True)
+glycan_counts = df_species.groupby("Species")["glycan"].count()
+normalized_df = result_df.div(glycan_counts, axis=0)
+
+result_df.to_csv("output/motif_counts_per_species_raw.csv", index=True, header=True)
+normalized_df.to_csv("output/motif_counts_per_species_normalized.csv", index=True, header=True)
 
 print(result_df)
 

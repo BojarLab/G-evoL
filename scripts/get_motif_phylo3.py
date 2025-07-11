@@ -10,7 +10,7 @@ Top_motifs= ['Glc', 'Gal', 'Man', 'GlcNAc', 'Rha', 'Fuc', 'Man(a1-6)Man', 'Man(a
 
 binary_df = pd.read_csv("output/binary_motif_table.csv", index_col=0)
 tree = Tree("output/2918_species_tree.nw", format=1)
-motif = "Xyl"
+motif = "Man(a1-3)Man"
 
 print(f"{motif} present in {binary_df[motif].sum()} species")
 
@@ -25,52 +25,50 @@ for leaf in tree:
     except ValueError:
         continue
 
+#for motif in Top_motifs:
+for motif in Representative_motifs:
+    print(f"Processing motif: {motif}")
+    # Set presence/absence as a custom attribute for each leaf node
+    for leaf in tree:
+        species_id = leaf.name
+        if species_id in binary_df.index:
+            leaf.add_feature("motif_state", binary_df.loc[species_id, motif])
+        else:
+            leaf.add_feature("motif_state", -1)  # Missing data
 
-# Set presence/absence as a custom attribute for each leaf node
-for leaf in tree:
-    species_id = leaf.name
-    if species_id in binary_df.index:
-        leaf.add_feature("motif_state", binary_df.loc[species_id, motif])
-    else:
-        leaf.add_feature("motif_state", -1)  # Missing data
+    # Set styles and add colored labels
+    for node in tree.traverse():
+        nstyle = NodeStyle()
+        nstyle["size"] = 0  # Hide node circles
 
+        # Default gray
+        color = "gray"
+        symbol = "?"
 
+        if hasattr(node, "motif_state"):
+            if node.motif_state == 1:
+                color = "green"
+                symbol = "✓"
+            elif node.motif_state == 0:
+                color = "red"
+                symbol = "×"
 
-# Set styles and add colored labels
-for node in tree.traverse():
-    nstyle = NodeStyle()
-    nstyle["size"] = 0  # Hide node circles
+            nstyle["fgcolor"] = color
+            nstyle["hz_line_color"] = color
+            nstyle["vt_line_color"] = color
+            nstyle["hz_line_width"] = 2
+            nstyle["vt_line_width"] = 2
 
-    # Default gray
-    color = "gray"
-    symbol = "?"
+            node.set_style(nstyle)
 
-    if hasattr(node, "motif_state"):
-        if node.motif_state == 1:
-            color = "green"
-            symbol = "✓"
-        elif node.motif_state == 0:
-            color = "red"
-            symbol = "×"
-
-        nstyle["fgcolor"] = color
-        nstyle["hz_line_color"] = color
-        nstyle["vt_line_color"] = color
-        nstyle["hz_line_width"] = 2
-        nstyle["vt_line_width"] = 2
-
-        node.set_style(nstyle)
-
-        # Add text face for leaves only
-        if node.is_leaf():
-            label_face = TextFace(f"{node.name} ({symbol})", fsize=10, fgcolor=color)
-            node.add_face(label_face, column=0, position="branch-right")
-
-# Tree layout options
-ts = TreeStyle()
-ts.show_leaf_name = False
-ts.title.add_face(TextFace(f"Motif: {motif}", fsize=14, bold=True), column=0)
-ts.scale = 50
-
-# Export the tree
-tree.render(f"output/{motif}_phylogeny.pdf", w=800, tree_style=ts)
+            # Add text face for leaves only
+            if node.is_leaf():
+                label_face = TextFace(f"{node.name} ({symbol})", fsize=10, fgcolor=color)
+                node.add_face(label_face, column=0, position="branch-right")
+    # Tree layout options
+    ts = TreeStyle()
+    ts.show_leaf_name = False
+    ts.title.add_face(TextFace(f"Motif: {motif}", fsize=14, bold=True), column=0)
+    ts.scale = 50
+    # Export the tree
+    tree.render(f"output/tree/{motif}_phylogeny.pdf", w=800, tree_style=ts)

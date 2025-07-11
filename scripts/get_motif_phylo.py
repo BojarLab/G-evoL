@@ -33,7 +33,7 @@ sp_gly_dic = df_gly_sp.groupby("Species")["glycan"].agg(list).to_dict()
 
 species_dfs = []
 for species, glycan_list in sp_gly_dic.items():
-    df = annotate_dataset(glycan_list)
+    df = annotate_dataset(glycan_list, feature_set=["known", "exhaustive"])
     df["Species"] = species
     species_dfs.append(df)
 
@@ -43,3 +43,4 @@ result_df = combined_df.groupby("Species").sum(numeric_only=True)
 result_df.to_csv("output/motif_counts_per_species.csv", index=True, header=True)
 
 print(result_df)
+

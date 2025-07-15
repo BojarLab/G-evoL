@@ -54,8 +54,6 @@ def test_motif_enrichment(binary_df, motifs, tax_col="clade", fdr_thresh=0.05):
     return enriched
 
 
-
-
 def plot_motif_clade_heatmap(binary_df, motifs, tax_col="clade", save_path=None):
     clade_summary = binary_df.groupby(tax_col)[motifs].mean()
     print(clade_summary.columns.tolist())
@@ -90,6 +88,7 @@ def plot_motif_clade_heatmap(binary_df, motifs, tax_col="clade", save_path=None)
 binary_df = pd.read_csv("output/binary_motif_table.csv", index_col=0)
 #representative_motifs=['Galf', 'Man', 'Glc1Cer', 'Glc-ol', 'Glc(b1-?)Glc', 'Rha', 'Glc', 'Araf', 'Man(b1-?)Man', 'Fruf']
 representative_motifs=['Glc', 'Gal', 'Man', 'GlcNAc', 'Rha', 'Man(a1-?)Man', 'Fuc', 'Man(a1-6)Man', 'Glc(b1-?)Glc', 'GlcNAc(b1-?)GlcNAc']
+
 ncbi = NCBITaxa()
 binary_df = map_taxid_to_clade(binary_df, ncbi, tax_rank="kingdom")
 enrichment_df = test_motif_enrichment(binary_df, representative_motifs)

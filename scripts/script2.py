@@ -13,7 +13,6 @@ motif_count.index = motif_count.index.str.replace("_", " ").str.strip()
 motif_count_filt1 = motif_count.loc[:, (motif_count != 0).any(axis=0)]
 # Filter 2: Remove rare motifs (<5% of species)
 motif_freq = motif_count_filt1.mean(axis=0).sort_values(ascending=False)
-# Filter 3: Keep only common motifs and binarize the matrix (0/1)
 common_motifs = motif_freq[motif_freq > 0.05].index
 binary_df = (motif_count_filt1[common_motifs] > 0).astype(int)
 

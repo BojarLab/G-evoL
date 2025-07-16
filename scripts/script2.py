@@ -55,25 +55,30 @@ jaccard_dist = pdist(motif_patterns.values, metric='jaccard')
 Z = linkage(jaccard_dist, method='average')
 labels = fcluster(Z, t=10, criterion='maxclust')
 
-# For each cluster, pick the motif with highest variance (most informative)
 representative_motifs = []
 for cluster in range(1, 11):
     cluster_mask = (labels == cluster)
     cluster_motifs = motif_patterns.loc[cluster_mask]
     if not cluster_motifs.empty:
         variances = cluster_motifs.var(axis=1)
-        top_motif = variances.idxmax()
+        #top_motif = variances.idxmax()
+        top_motif = variances.idxmin()
         representative_motifs.append(top_motif)
 
 print("Representative motifs:", representative_motifs)
+representative_motifs = pd.Series(representative_motifs, name="motif")
+representative_motifs.to_csv("output/representative_motifs.csv",header=False, index=False)
 
 
-"Option B: Pick motifs with highest entropy"
+"Option B: Pick motifs with least entropy"
 
 def entropy(p):
     return -p*np.log2(p) - (1-p)*np.log2(1-p)
 
 motif_freqs = motif_counts / len(binary_df)
 motif_entropy = entropy(motif_freqs).fillna(0)
-top_entropy_motifs = motif_entropy.sort_values(ascending=False).head(10).index.tolist()
+top_entropy_motifs = motif_entropy.sort_values(ascending=True).head(10).index.tolist()
+
 print("Top motifs by entropy:", top_entropy_motifs)
+top_entropy_motifs = pd.Series(top_entropy_motifs, name="motif")
+top_entropy_motifs.to_csv("output/top_entropy_motifs.csv",header=False,  index=False)

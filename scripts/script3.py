@@ -6,6 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
+
 def map_taxid_to_clade(binary_df, ncbi, tax_rank="class"):
     """Add a clade column (e.g., class/order) to binary_df using NCBI taxonomy."""
     binary_df = binary_df.dropna(subset=["taxid"])
@@ -86,13 +87,24 @@ def plot_motif_clade_heatmap(binary_df, motifs, tax_col="clade", save_path=None)
  Hierarchical Clustering"""
 
 binary_df = pd.read_csv("output/binary_motif_table.csv", index_col=0)
-#representative_motifs=['Galf', 'Man', 'Glc1Cer', 'Glc-ol', 'Glc(b1-?)Glc', 'Rha', 'Glc', 'Araf', 'Man(b1-?)Man', 'Fruf']
-representative_motifs=['Glc', 'Gal', 'Man', 'GlcNAc', 'Rha', 'Man(a1-?)Man', 'Fuc', 'Man(a1-6)Man', 'Glc(b1-?)Glc', 'GlcNAc(b1-?)GlcNAc']
+motif_files = [
+    ("top_entropy_motifs.csv", "output/motif_clade_heatmap_entropy.png"),
+    ("representative_motifs.csv", "output/motif_clade_heatmap_representative.png")
+]
 
 ncbi = NCBITaxa()
 binary_df = map_taxid_to_clade(binary_df, ncbi, tax_rank="kingdom")
-enrichment_df = test_motif_enrichment(binary_df, representative_motifs)
 
-print(enrichment_df.query("fdr_pval < 0.05"))
-sig_motifs = enrichment_df.query("fdr_pval < 0.05")["motif"].tolist()
-plot_motif_clade_heatmap(binary_df, sig_motifs, tax_col="clade", save_path="output/motif_clade_heatmap2.png")
+for file_name, heatmap_path in motif_files:
+    # Read without header and no index column
+    df = pd.read_csv(f"output/{file_name}", header=None)
+    motif_list = df[0].tolist()
+    enrichment_df = test_motif_enrichment(binary_df, motif_list)
+    print(f"Significant motifs for {file_name}:")
+    print(enrichment_df.query("fdr_pval < 0.05"))
+    sig_motifs = enrichment_df.query("fdr_pval < 0.05")["motif"].tolist()
+
+    if sig_motifs:
+        plot_motif_clade_heatmap(binary_df, sig_motifs, tax_col="clade", save_path=heatmap_path)
+    else:
+        print(f"No significant motifs found in {file_name}")

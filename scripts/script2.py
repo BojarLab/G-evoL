@@ -78,6 +78,7 @@ def entropy(p):
 motif_freqs = motif_counts / len(binary_df)
 motif_entropy = entropy(motif_freqs).fillna(0)
 top_entropy_motifs = motif_entropy.sort_values(ascending=True).head(10).index.tolist()
+#top_entropy_motifs = motif_entropy.sort_values(ascending=False).head(10).index.tolist()
 
 print("Top motifs by entropy:", top_entropy_motifs)
 top_entropy_motifs = pd.Series(top_entropy_motifs, name="motif")

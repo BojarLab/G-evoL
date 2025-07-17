@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 
 
 
-def map_taxid_to_clade(binary_df, ncbi, tax_rank="class"):
-    """Add a clade column (e.g., class/order) to binary_df using NCBI taxonomy."""
+def map_taxid_to_clade(binary_df, ncbi, tax_rank):
     binary_df = binary_df.dropna(subset=["taxid"])
     binary_df["taxid"] = binary_df["taxid"].astype(int)
     species_taxids = binary_df["taxid"].tolist()
@@ -88,12 +87,12 @@ def plot_motif_clade_heatmap(binary_df, motifs, tax_col="clade", save_path=None)
 
 binary_df = pd.read_csv("output/binary_motif_table.csv", index_col=0)
 motif_files = [
-    ("top_entropy_motifs.csv", "output/motif_clade_heatmap_entropy.png"),
-    ("representative_motifs.csv", "output/motif_clade_heatmap_representative.png")
+    ("top_entropy_motifs.csv", "output/motif_domain_heatmap_entropy.png"),
+    ("representative_motifs.csv", "output/motif_domain_heatmap_representative.png")
 ]
 
 ncbi = NCBITaxa()
-binary_df = map_taxid_to_clade(binary_df, ncbi, tax_rank="kingdom")
+binary_df = map_taxid_to_clade(binary_df, ncbi, tax_rank="domain")
 
 for file_name, heatmap_path in motif_files:
     # Read without header and no index column

@@ -1,6 +1,6 @@
 import pandas as pd
 from ete3 import NCBITaxa
-ncbi = NCBITaxa()
+import re
 from scipy.spatial.distance import pdist, squareform
 from scipy.cluster.hierarchy import linkage, fcluster
 import numpy as np
@@ -24,7 +24,7 @@ count = 0
 name_to_taxid = {}
 # Get taxids for species
 for sp in sp_list:
-    name2taxid = ncbi.get_name_translator([sp])
+    name2taxid = NCBITaxa().get_name_translator([sp])
     if sp in name2taxid:
         tid = name2taxid[sp][0]
         taxids.append(tid)
@@ -39,6 +39,11 @@ binary_df.to_csv("output/binary_motif_table.csv")
 
 
 
+def is_multi_monosaccharide(motif_name):
+    # Count sugar-like names in the motif name
+    sugars = re.findall(r'[A-Z][a-z]+', motif_name)
+    return len(sugars) > 1
+
 
 "2- Select informative motifs:"
 "Option A: Cluster motifs by presence pattern"
@@ -46,6 +51,7 @@ binary_df.to_csv("output/binary_motif_table.csv")
 motif_counts = binary_df.drop(columns=["taxid"]).sum(axis=0)  # exclude taxid
 # Filter 4: Select motifs with frequency between 30
 filt = motif_counts[motif_counts >= 30]
+filt = filt[[is_multi_monosaccharide(m) for m in filt.index]]
 print(f"{len(filt)} motifs selected based on frequency range")
 
 motif_patterns = binary_df[filt.index]
@@ -77,8 +83,9 @@ def entropy(p):
 
 motif_freqs = motif_counts / len(binary_df)
 motif_entropy = entropy(motif_freqs).fillna(0)
-top_entropy_motifs = motif_entropy.sort_values(ascending=True).head(10).index.tolist()
-#top_entropy_motifs = motif_entropy.sort_values(ascending=False).head(10).index.tolist()
+motif_entropy = motif_entropy[[is_multi_monosaccharide(m) for m in motif_entropy.index]]
+top_entropy_motifs = motif_entropy.sort_values(ascending=True).head(10).index.tolist() #low entroy
+#top_entropy_motifs = motif_entropy.sort_values(ascending=False).head(10).index.tolist() #high entropy
 
 print("Top motifs by entropy:", top_entropy_motifs)
 top_entropy_motifs = pd.Series(top_entropy_motifs, name="motif")

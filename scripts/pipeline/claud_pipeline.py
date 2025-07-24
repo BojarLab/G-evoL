@@ -26,11 +26,30 @@ from claud_script4 import MotifEvolutionAnalyzer, enrichment_by_lineage, plot_li
 from claud_script5 import PhylogeneticMotifVisualizer, enhance_evolution_analysis
 
 
-def is_multi_monosaccharide(motif_name):
+def is_multi_monosaccharide_(motif_name):
     """Check if motif contains multiple monosaccharides"""
     # Count sugar-like names (capitalized words) in the motif name
     sugars = re.findall(r'[A-Z][a-z]+', motif_name)
     return len(sugars) > 1
+
+
+def is_multi_monosaccharide(motif_name):
+    """Check if motif contains multiple monosaccharides"""
+    # Define common monosaccharide abbreviations
+    monosaccharides = {
+        'Glc', 'Gal', 'Man', 'Fuc', 'Xyl', 'Rib', 'Ara', 'Rha',
+        'GlcNAc', 'GalNAc', 'ManNAc', 'GlcA', 'GalA', 'ManA',
+        'Neu5Ac', 'Neu5Gc', 'KDN', 'Kdo', 'Dha', 'Fru',
+        'GlcN', 'GalN', 'ManN', 'IdoA', 'GlcUA'
+    }
+
+    # Find all capitalized words (potential sugar names)
+    potential_sugars = re.findall(r'[A-Z][a-zA-Z0-9]*', motif_name)
+
+    # Count only those that are actual monosaccharides
+    actual_sugars = [sugar for sugar in potential_sugars if sugar in monosaccharides]
+
+    return len(actual_sugars) > 1
 
 
 class MotifAnalysisPipeline:

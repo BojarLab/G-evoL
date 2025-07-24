@@ -173,9 +173,12 @@ ncbi = NCBITaxa()
 TAX_RANK = "phylum"  # Change here once for all
 
 motif_files = [
-    ("top_entropy_motifs.csv", f"output/motif_{TAX_RANK}_heatmap_entropy.png"),
-    ("representative_motifs.csv", f"output/motif_{TAX_RANK}_heatmap_representative.png")
-]
+    ("top_entropy_motifs.csv", f"output/dendrogram_heatmap/motif_{TAX_RANK}_heatmap_entropy.png"),
+    ("representative_motifs.csv", f"output/dendrogram_heatmap/motif_{TAX_RANK}_heatmap_representative.png",
+     "mrmr_motifs.csv", f"output/dendrogram_heatmap/motif_{TAX_RANK}_heatmap_mrmr.png",
+     #"mutual_info_motifs.csv", f"output/dendrogram_heatmap/motif_{TAX_RANK}_heatmap_mutual_info.png",
+     #"random_forest_motifs.csv", f"output/dendrogram_heatmap/motif_{TAX_RANK}_heatmap_rf.png",),
+     )]
 
 binary_df, tax_col = map_taxid_to_clade(binary_df, ncbi, tax_rank=TAX_RANK)
 
